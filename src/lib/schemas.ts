@@ -42,6 +42,8 @@ export const playerRoleSchema = z.object({
 export const playerSchema = z.object({
   id: z.string(),
   nome: z.string(),
+  soprannome: z.string().nullable(),
+  avatar_url: z.string().nullable(),
   er: z.number().nullable(),
   tratto: z.string().nullable(),
   tenore_fisico: z.string().nullable(),

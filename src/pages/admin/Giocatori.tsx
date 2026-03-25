@@ -21,6 +21,9 @@ export function AdminGiocatori() {
   const [tenore, setTenore] = useState('')
   const [tratto, setTratto] = useState('')
   const [ruoli, setRuoli] = useState<string[]>(['', '', '', ''])
+  const [soprannome, setSoprannome] = useState('')
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const loadData = () => {
@@ -30,18 +33,21 @@ export function AdminGiocatori() {
   useEffect(loadData, [])
 
   const resetForm = () => {
-    setNome(''); setBaseRating(''); setLastEr(''); setDeltaRating(''); setTenore(''); setTratto('')
-    setRuoli(['', '', '', '']); setEditing(null)
+    setNome(''); setSoprannome(''); setBaseRating(''); setLastEr(''); setDeltaRating(''); setTenore(''); setTratto('')
+    setRuoli(['', '', '', '']); setAvatarFile(null); setAvatarPreview(null); setEditing(null)
   }
 
   const startEdit = (p: Player) => {
     setEditing(p.id)
     setNome(p.nome)
+    setSoprannome(p.soprannome ?? '')
     setBaseRating(p.base_rating?.toString() ?? '')
     setLastEr(p.last_er?.toString() ?? '')
     setDeltaRating(p.delta_rating?.toString() ?? '')
     setTenore(p.tenore_fisico ?? '')
     setTratto(p.tratto ?? '')
+    setAvatarPreview(p.avatar_url ?? null)
+    setAvatarFile(null)
     const roles = p.player_roles?.sort((a, b) => a.ordine - b.ordine).map((r) => r.ruolo) ?? []
     setRuoli([roles[0] ?? '', roles[1] ?? '', roles[2] ?? '', roles[3] ?? ''])
   }
@@ -51,8 +57,9 @@ export function AdminGiocatori() {
     if (!nome.trim()) { toast.error('Nome obbligatorio'); return }
 
     setSubmitting(true)
-    const playerData = {
+    const playerData: Record<string, unknown> = {
       nome: nome.trim(),
+      soprannome: soprannome.trim() || null,
       base_rating: baseRating ? parseFloat(baseRating) : null,
       last_er: lastEr ? parseFloat(lastEr) : null,
       delta_rating: deltaRating ? parseFloat(deltaRating) : null,
@@ -70,6 +77,18 @@ export function AdminGiocatori() {
       const { error } = await supabase.from('players').update(playerData).eq('id', editing!)
       if (error) { toast.error(error.message); setSubmitting(false); return }
       playerId = editing!
+    }
+
+    // Upload avatar if selected
+    if (avatarFile) {
+      const ext = avatarFile.name.split('.').pop()
+      const path = `${playerId}.${ext}`
+      const { error: uploadErr } = await supabase.storage.from('avatars').upload(path, avatarFile, { upsert: true })
+      if (uploadErr) { toast.error('Errore upload immagine: ' + uploadErr.message) }
+      else {
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
+        await supabase.from('players').update({ avatar_url: urlData.publicUrl }).eq('id', playerId)
+      }
     }
 
     // Upsert roles
@@ -120,6 +139,10 @@ export function AdminGiocatori() {
               <input value={nome} onChange={(e) => setNome(e.target.value)} required style={fieldStyle} />
             </div>
             <div>
+              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Soprannome</label>
+              <input value={soprannome} onChange={(e) => setSoprannome(e.target.value)} style={fieldStyle} />
+            </div>
+            <div>
               <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Base Rating</label>
               <input value={baseRating} onChange={(e) => setBaseRating(e.target.value)} style={fieldStyle} />
             </div>
@@ -154,6 +177,24 @@ export function AdminGiocatori() {
                 </select>
               </div>
             ))}
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '0.25rem' }}>Immagine giocatore</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {avatarPreview && (
+                <img src={avatarPreview} alt="avatar" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover' }} />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null
+                  setAvatarFile(file)
+                  if (file) setAvatarPreview(URL.createObjectURL(file))
+                }}
+                style={{ fontSize: '0.85rem' }}
+              />
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button type="submit" disabled={submitting} style={{ padding: '0.5rem 1.5rem', borderRadius: '8px', background: 'var(--accent)', color: '#000', fontWeight: 700, opacity: submitting ? 0.6 : 1 }}>

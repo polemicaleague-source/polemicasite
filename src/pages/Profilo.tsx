@@ -34,7 +34,13 @@ export function Profilo() {
     <div style={{ padding: '1rem' }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.25rem' }}>{player.nome}</h1>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.15rem' }}>{player.nome}</h1>
+
+        {player.soprannome && (
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '0.4rem' }}>
+            "{player.soprannome}"
+          </p>
+        )}
 
         {/* Role badges */}
         <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
@@ -53,9 +59,25 @@ export function Profilo() {
         </div>
 
         {player.tratto && (
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem', fontStyle: 'italic' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.75rem', fontStyle: 'italic' }}>
             {player.tratto}
           </p>
+        )}
+
+        {player.avatar_url && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <img
+              src={player.avatar_url}
+              alt={player.nome}
+              style={{
+                width: '100%',
+                maxWidth: 220,
+                aspectRatio: '1',
+                objectFit: 'cover',
+                borderRadius: 'var(--radius)',
+              }}
+            />
+          </div>
         )}
       </motion.div>
 
