@@ -89,7 +89,7 @@ export function Home() {
       {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
 
       <AnimatePresence>
-        {giornate.slice(0, 3).map((g) => (
+        {giornate.slice(0, 2).map((g) => (
           <div key={g} style={{ marginBottom: '1.5rem' }}>
             <div style={{
               display: 'inline-block',
@@ -121,7 +121,7 @@ export function Home() {
         ))}
       </AnimatePresence>
 
-      {!loading && giornate.length > 3 && (
+      {!loading && giornate.length > 2 && (
         <Link
           to="/news"
           style={{
