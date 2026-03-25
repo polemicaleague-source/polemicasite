@@ -20,21 +20,34 @@ export function AdminHome() {
   const [nome, setNome] = useState('')
   const [widgetId, setWidgetId] = useState<string | null>(null)
 
+  // Instagram state
+  const [igWidgetId, setIgWidgetId] = useState<string | null>(null)
+  const [igAttivo, setIgAttivo] = useState(false)
+  const [igPosts, setIgPosts] = useState(['', '', ''])
+  const [igSubmitting, setIgSubmitting] = useState(false)
+
   useEffect(() => {
     supabase
       .from('home_widgets')
       .select('*')
-      .eq('tipo', 'prossima_partita')
-      .single()
-      .then(({ data: row }) => {
-        if (row) {
-          setWidgetId(row.id)
-          setAttivo(row.attivo)
-          const p = row.payload as ProssimaPartita
-          setData(p.data ?? '')
-          setOra(p.ora ?? '')
-          setLuogo(p.luogo ?? '')
-          setNome(p.nome ?? '')
+      .in('tipo', ['prossima_partita', 'instagram'])
+      .then(({ data: rows }) => {
+        for (const row of rows ?? []) {
+          if (row.tipo === 'prossima_partita') {
+            setWidgetId(row.id)
+            setAttivo(row.attivo)
+            const p = row.payload as ProssimaPartita
+            setData(p.data ?? '')
+            setOra(p.ora ?? '')
+            setLuogo(p.luogo ?? '')
+            setNome(p.nome ?? '')
+          }
+          if (row.tipo === 'instagram') {
+            setIgWidgetId(row.id)
+            setIgAttivo(row.attivo)
+            const p = row.payload as { posts: string[] }
+            setIgPosts(p.posts?.length ? p.posts : ['', '', ''])
+          }
         }
       })
       .finally(() => setLoading(false))
@@ -59,6 +72,27 @@ export function AdminHome() {
     else if (!updated || updated.length === 0) toast.error('Permesso negato: verifica di essere admin')
     else toast.success('Salvato')
     setSubmitting(false)
+  }
+
+  const handleIgSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!igWidgetId) return
+    setIgSubmitting(true)
+
+    const { data: updated, error } = await supabase
+      .from('home_widgets')
+      .update({
+        attivo: igAttivo,
+        payload: { posts: igPosts },
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', igWidgetId)
+      .select()
+
+    if (error) toast.error(error.message)
+    else if (!updated || updated.length === 0) toast.error('Permesso negato: verifica di essere admin')
+    else toast.success('Instagram salvato')
+    setIgSubmitting(false)
   }
 
   const fieldStyle: React.CSSProperties = { padding: '0.5rem', fontSize: '0.9rem', width: '100%' }
@@ -136,6 +170,68 @@ export function AdminHome() {
           }}
         >
           {submitting ? 'Salvataggio...' : 'Salva'}
+        </button>
+      </form>
+
+      {/* Instagram widget */}
+      <form onSubmit={handleIgSubmit} style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: '1.25rem', marginTop: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+          <h3 style={{ fontWeight: 600, fontSize: '1rem' }}>Instagram</h3>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              {igAttivo ? 'Attivo' : 'Disattivo'}
+            </span>
+            <div
+              onClick={() => setIgAttivo(!igAttivo)}
+              style={{
+                width: 40,
+                height: 22,
+                borderRadius: 11,
+                background: igAttivo ? 'var(--accent)' : '#444',
+                position: 'relative',
+                transition: 'background 0.2s',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{
+                width: 18,
+                height: 18,
+                borderRadius: '50%',
+                background: '#fff',
+                position: 'absolute',
+                top: 2,
+                left: igAttivo ? 20 : 2,
+                transition: 'left 0.2s',
+              }} />
+            </div>
+          </label>
+        </div>
+
+        {igPosts.map((url, i) => (
+          <div key={i} style={{ marginBottom: '0.75rem' }}>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Post {i + 1}</label>
+            <input
+              value={url}
+              onChange={(e) => setIgPosts(prev => prev.map((v, j) => j === i ? e.target.value : v))}
+              placeholder="https://www.instagram.com/p/..."
+              style={fieldStyle}
+            />
+          </div>
+        ))}
+
+        <button
+          type="submit"
+          disabled={igSubmitting}
+          style={{
+            padding: '0.5rem 1.5rem',
+            borderRadius: '8px',
+            background: 'var(--accent)',
+            color: '#000',
+            fontWeight: 700,
+            opacity: igSubmitting ? 0.6 : 1,
+          }}
+        >
+          {igSubmitting ? 'Salvataggio...' : 'Salva'}
         </button>
       </form>
     </div>
