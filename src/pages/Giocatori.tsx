@@ -52,39 +52,51 @@ export function Giocatori() {
     <div style={{ padding: '1rem' }}>
       <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Giocatori</h1>
 
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem' }}>
         <Link
           to="/stats"
           style={{
             flex: 1,
-            padding: '0.6rem',
-            borderRadius: '8px',
-            background: 'var(--accent)',
-            color: '#000',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius)',
+            background: 'var(--surface)',
+            border: '1px solid #333',
+            color: 'var(--accent)',
             fontWeight: 600,
             fontSize: '0.85rem',
-            textTransform: 'uppercase',
-            textAlign: 'center',
             textDecoration: 'none',
           }}
         >
-          Classifiche
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          Stats
         </Link>
         <Link
           to="/1vs1"
           style={{
             flex: 1,
-            padding: '0.6rem',
-            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius)',
             background: 'var(--surface)',
-            color: 'var(--text-secondary)',
+            border: '1px solid #333',
+            color: 'var(--accent)',
             fontWeight: 600,
             fontSize: '0.85rem',
-            textTransform: 'uppercase',
-            textAlign: 'center',
             textDecoration: 'none',
           }}
         >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
           1 vs 1
         </Link>
       </div>

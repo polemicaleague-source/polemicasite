@@ -5,15 +5,17 @@ import { getClassifiche } from '../api/classifiche'
 import type { ClassificaRow } from '../lib/schemas'
 import { Skeleton } from '../components/Skeleton'
 
-type Tab = 'marcatori' | 'voto'
+type Tab = 'marcatori' | 'assist' | 'voto'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'marcatori', label: 'Marcatori' },
+  { key: 'assist', label: 'Assist' },
   { key: 'voto', label: 'Media Voto' },
 ]
 
 function valueForTab(row: ClassificaRow, tab: Tab): string {
   if (tab === 'marcatori') return String(row.gol_totali)
+  if (tab === 'assist') return String(row.assist_totali)
   return row.media_voto !== null ? row.media_voto.toFixed(2) : '-'
 }
 
@@ -34,7 +36,7 @@ export function Stats() {
 
   return (
     <div style={{ padding: '1rem' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Classifiche</h1>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Stats</h1>
 
       {/* Tab switcher */}
       <div style={{

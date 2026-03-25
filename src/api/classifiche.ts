@@ -7,7 +7,7 @@ export type ClassificheResult = {
 }
 
 export async function getClassifiche(
-  type: 'voto' | 'marcatori'
+  type: 'marcatori' | 'assist' | 'voto'
 ): Promise<ClassificheResult> {
   // Fetch aggregated stats from the view
   const { data: rows, error } = await supabase
@@ -44,7 +44,7 @@ export async function getClassifiche(
   }
 
   // Sort by requested metric
-  const sortKey = type === 'marcatori' ? 'gol_totali' : 'media_voto'
+  const sortKey = type === 'marcatori' ? 'gol_totali' : type === 'assist' ? 'assist_totali' : 'media_voto'
   const sorted = (rows as any[]).sort((a, b) => {
     const va = a[sortKey] as number | null
     const vb = b[sortKey] as number | null
