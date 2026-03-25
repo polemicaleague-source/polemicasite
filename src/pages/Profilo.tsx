@@ -28,6 +28,8 @@ export function Profilo() {
   if (!data) return null
 
   const { player, stats, streak, trend } = data
+  const vittorie = trend.filter((r) => r.risultato === 'V').length
+  const sconfitte = trend.filter((r) => r.risultato === 'S').length
   const roles = player.player_roles?.sort((a, b) => a.ordine - b.ordine).map((r) => r.ruolo) ?? []
 
   return (
@@ -96,6 +98,8 @@ export function Profilo() {
           const cards: [string, string][] = [
             ['Gol', String(stats.gol_totali)],
             ['Assist', String(stats.assist_totali)],
+            ['Vittorie', String(vittorie)],
+            ['Sconfitte', String(sconfitte)],
             ['Media Voto', stats.media_voto !== null ? stats.media_voto.toFixed(2) : '-'],
             ['Plus/Minus', stats.plus_minus >= 0 ? `+${stats.plus_minus}` : String(stats.plus_minus)],
             ['Presenze', String(stats.presenze)],
