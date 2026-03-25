@@ -17,6 +17,7 @@ export function Giocatori() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
+  const [search, setSearch] = useState('')
 
   const loadPage = async (offset: number) => {
     const { data, error } = await supabase
@@ -43,13 +44,38 @@ export function Giocatori() {
     setLoadingMore(false)
   }
 
+  const filtered = search.trim()
+    ? players.filter((p) => p.nome.toLowerCase().includes(search.toLowerCase()))
+    : players
+
   return (
     <div style={{ padding: '1rem' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.25rem' }}>Giocatori</h1>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Giocatori</h1>
+
+      <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
+        <svg width="18" height="18" fill="none" stroke="var(--text-secondary)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)' }}>
+          <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Cerca giocatore..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '0.65rem 0.75rem 0.65rem 2.5rem',
+            borderRadius: '8px',
+            background: 'var(--surface)',
+            color: 'var(--text)',
+            border: '1px solid #333',
+            fontSize: '0.9rem',
+          }}
+        />
+      </div>
 
       {loading && <Skeleton height="4rem" count={8} />}
 
-      {players.map((p, idx) => (
+      {filtered.map((p, idx) => (
         <motion.div
           key={p.id}
           initial={{ opacity: 0, y: 12 }}
@@ -113,7 +139,7 @@ export function Giocatori() {
         </motion.div>
       ))}
 
-      {hasMore && !loading && (
+      {hasMore && !loading && !search.trim() && (
         <button
           onClick={handleLoadMore}
           disabled={loadingMore}
@@ -134,7 +160,7 @@ export function Giocatori() {
         </button>
       )}
 
-      {!loading && players.length === 0 && (
+      {!loading && filtered.length === 0 && (
         <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginTop: '3rem' }}>
           Nessun giocatore disponibile
         </p>
