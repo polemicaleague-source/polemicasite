@@ -256,33 +256,47 @@ export function Home() {
           </div>
 
           {/* Teams */}
-          <div style={{ display: 'flex', gap: '1rem', padding: '0 0.5rem' }}>
-            {[
-              { team: ultimaPartita.teamA, isWinner: ultimaPartita.golA > ultimaPartita.golB },
-              { team: ultimaPartita.teamB, isWinner: ultimaPartita.golB > ultimaPartita.golA },
-            ].map(({ team, isWinner }, ti) => (
-              <div key={ti} style={{ flex: 1 }}>
-                {team.map((p) => (
-                  <div
-                    key={p.player_id}
-                    onClick={() => navigate(`/profilo/${p.player_id}`)}
-                    style={{
-                      fontSize: '0.78rem',
-                      padding: '0.25rem 0',
-                      color: isWinner ? 'rgba(255,255,255,0.9)' : 'var(--text-secondary)',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    · {p.nome}
-                    {p.gol > 0 && (
-                      <span style={{ marginLeft: '0.3rem' }}>
-                        {'⚽'.repeat(p.gol)}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ))}
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {/* Team A - aligned right */}
+            <div style={{ flex: 1, textAlign: 'right' }}>
+              {ultimaPartita.teamA.map((p) => (
+                <div
+                  key={p.player_id}
+                  onClick={() => navigate(`/profilo/${p.player_id}`)}
+                  style={{
+                    fontSize: '0.78rem',
+                    padding: '0.25rem 0',
+                    color: ultimaPartita.golA > ultimaPartita.golB ? 'rgba(255,255,255,0.9)' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {p.gol > 0 && (
+                    <span style={{ marginRight: '0.3rem' }}>{'⚽'.repeat(p.gol)}</span>
+                  )}
+                  {p.nome}
+                </div>
+              ))}
+            </div>
+            {/* Team B - aligned left */}
+            <div style={{ flex: 1 }}>
+              {ultimaPartita.teamB.map((p) => (
+                <div
+                  key={p.player_id}
+                  onClick={() => navigate(`/profilo/${p.player_id}`)}
+                  style={{
+                    fontSize: '0.78rem',
+                    padding: '0.25rem 0',
+                    color: ultimaPartita.golB > ultimaPartita.golA ? 'rgba(255,255,255,0.9)' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {p.nome}
+                  {p.gol > 0 && (
+                    <span style={{ marginLeft: '0.3rem' }}>{'⚽'.repeat(p.gol)}</span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       )}
