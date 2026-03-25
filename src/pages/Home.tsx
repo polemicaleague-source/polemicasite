@@ -342,33 +342,34 @@ export function Home() {
         {igPosts.length > 0 && (
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
+            flexDirection: 'column',
+            gap: '0.75rem',
             marginTop: '0.75rem',
-            overflowX: 'auto',
           }}>
-            {igPosts.map((url, i) => (
-              <a
-                key={i}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  flex: '1 1 0',
-                  minWidth: 0,
-                  aspectRatio: '1',
-                  borderRadius: 'var(--radius)',
-                  overflow: 'hidden',
-                  display: 'block',
-                }}
-              >
-                <img
-                  src={url.replace(/\/?$/, '/media/?size=m')}
-                  alt={`Post ${i + 1}`}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                />
-              </a>
-            ))}
+            {igPosts.map((url, i) => {
+              const embedUrl = url.replace(/\/?(\?.*)?$/, '/embed')
+              return (
+                <div
+                  key={i}
+                  style={{
+                    borderRadius: 'var(--radius)',
+                    overflow: 'hidden',
+                    background: '#000',
+                  }}
+                >
+                  <iframe
+                    src={embedUrl}
+                    style={{
+                      width: '100%',
+                      minHeight: 480,
+                      border: 'none',
+                    }}
+                    allowTransparency
+                    scrolling="no"
+                  />
+                </div>
+              )
+            })}
           </div>
         )}
       </motion.div>
