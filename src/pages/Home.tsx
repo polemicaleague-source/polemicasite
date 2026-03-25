@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getNews, type NewsItem } from '../api/news'
 import { supabase } from '../lib/supabase'
@@ -15,7 +15,14 @@ export function Home() {
   const [partiteCount, setPartiteCount] = useState<number | null>(null)
   const [giocatoriCount, setGiocatoriCount] = useState<number | null>(null)
   const [prossimaPartita, setProssimaPartita] = useState<{ data: string; ora: string; luogo: string; nome: string } | null>(null)
+  const [ultimaPartita, setUltimaPartita] = useState<{
+    giornata: number; data: string; campo: string | null; ora: string | null;
+    golA: number; golB: number;
+    teamA: { player_id: string; nome: string; gol: number }[];
+    teamB: { player_id: string; nome: string; gol: number }[];
+  } | null>(null)
   const polemiche = useMemo(() => Math.floor(Math.random() * 900) + 100, [])
+  const navigate = useNavigate()
 
   useEffect(() => {
     getNews()
@@ -32,6 +39,32 @@ export function Home() {
     supabase.from('home_widgets').select('attivo, payload').eq('tipo', 'prossima_partita').single().then(({ data }) => {
       if (data?.attivo) setProssimaPartita(data.payload as any)
     })
+
+    // Fetch ultima partita
+    supabase.from('match_details')
+      .select('giornata, data, campo, ora, squadra, gol_squadra, gol, player_id, players(id, nome)')
+      .order('giornata', { ascending: false })
+      .then(({ data: md }) => {
+        if (!md || md.length === 0) return
+        const maxG = (md as any[])[0].giornata
+        const rows = (md as any[]).filter((r: any) => r.giornata === maxG)
+        let golA = 0, golB = 0
+        const teamA: { player_id: string; nome: string; gol: number }[] = []
+        const teamB: { player_id: string; nome: string; gol: number }[] = []
+        for (const r of rows) {
+          if (r.squadra === 'A') {
+            if (golA === 0) golA = r.gol_squadra
+            teamA.push({ player_id: r.player_id, nome: r.players?.nome ?? '??', gol: r.gol })
+          } else {
+            if (golB === 0) golB = r.gol_squadra
+            teamB.push({ player_id: r.player_id, nome: r.players?.nome ?? '??', gol: r.gol })
+          }
+        }
+        setUltimaPartita({
+          giornata: maxG, data: rows[0].data, campo: rows[0].campo, ora: rows[0].ora,
+          golA, golB, teamA, teamB,
+        })
+      })
   }, [])
 
   // Group by giornata
@@ -147,6 +180,109 @@ export function Home() {
                 {prossimaPartita.nome}
               </div>
             )}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Ultima Partita banner */}
+      {ultimaPartita && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          style={{
+            background: 'var(--surface)',
+            borderRadius: 'var(--radius)',
+            padding: '1.25rem',
+            marginBottom: '1.5rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '1rem' }}>⚽</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Ultima Partita</span>
+          </div>
+
+          <div style={{
+            fontSize: '0.7rem',
+            color: 'var(--text-secondary)',
+            textAlign: 'center',
+            marginBottom: '0.75rem',
+          }}>
+            Giornata {ultimaPartita.giornata} · {new Date(ultimaPartita.data + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            {ultimaPartita.campo && ` · ${ultimaPartita.campo}`}
+            {ultimaPartita.ora && ` · ore ${ultimaPartita.ora.slice(0, 5)}`}
+          </div>
+
+          {/* Score */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '1.5rem',
+            marginBottom: '1rem',
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: ultimaPartita.golA > ultimaPartita.golB ? 'var(--accent)' : 'var(--text-secondary)',
+                marginBottom: '0.2rem',
+              }}>
+                Squadra A {ultimaPartita.golA > ultimaPartita.golB ? '🏆' : ''}
+              </div>
+            </div>
+            <div style={{
+              fontSize: '2rem',
+              fontWeight: 800,
+              fontVariantNumeric: 'tabular-nums',
+              letterSpacing: '2px',
+            }}>
+              <span style={{ color: ultimaPartita.golA > ultimaPartita.golB ? 'var(--accent)' : 'var(--text-secondary)' }}>{ultimaPartita.golA}</span>
+              <span style={{ color: '#555', margin: '0 0.3rem' }}>-</span>
+              <span style={{ color: ultimaPartita.golB > ultimaPartita.golA ? 'var(--accent)' : 'var(--text-secondary)' }}>{ultimaPartita.golB}</span>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: ultimaPartita.golB > ultimaPartita.golA ? 'var(--accent)' : 'var(--text-secondary)',
+                marginBottom: '0.2rem',
+              }}>
+                Squadra B {ultimaPartita.golB > ultimaPartita.golA ? '🏆' : ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Teams */}
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            {[
+              { team: ultimaPartita.teamA, isWinner: ultimaPartita.golA > ultimaPartita.golB },
+              { team: ultimaPartita.teamB, isWinner: ultimaPartita.golB > ultimaPartita.golA },
+            ].map(({ team, isWinner }, ti) => (
+              <div key={ti} style={{ flex: 1 }}>
+                {team.map((p) => (
+                  <div
+                    key={p.player_id}
+                    onClick={() => navigate(`/profilo/${p.player_id}`)}
+                    style={{
+                      fontSize: '0.78rem',
+                      padding: '0.2rem 0',
+                      color: isWinner ? 'rgba(255,255,255,0.9)' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {isWinner ? '🏅' : '·'} {p.nome}
+                    {p.gol > 0 && (
+                      <span style={{ color: 'var(--accent)', fontSize: '0.7rem', marginLeft: '0.3rem' }}>
+                        x{p.gol}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         </motion.div>
       )}
