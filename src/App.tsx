@@ -12,6 +12,7 @@ import { Giocatori } from './pages/Giocatori'
 import { ManifestoPage } from './pages/Manifesto'
 import { AdminLogin } from './pages/admin/Login'
 import { AdminLayout } from './pages/admin/Layout'
+import { AdminHome } from './pages/admin/Home'
 import { AdminPartite } from './pages/admin/Partite'
 import { AdminGiocatori } from './pages/admin/Giocatori'
 import { AdminNews } from './pages/admin/News'
@@ -39,6 +40,7 @@ function App() {
           {/* Admin */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
+            <Route path="home" element={<AdminHome />} />
             <Route path="partite" element={<AdminPartite />} />
             <Route path="giocatori" element={<AdminGiocatori />} />
             <Route path="news" element={<AdminNews />} />

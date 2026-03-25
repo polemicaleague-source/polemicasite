@@ -52,17 +52,45 @@ export const playerSchema = z.object({
   player_roles: z.array(playerRoleSchema).optional(),
 })
 
+export const topPlayerSchema = z.object({
+  id: z.string(),
+  nome: z.string(),
+  partite: z.number(),
+  vittorie: z.number(),
+  sconfitte: z.number(),
+})
+
 export const playerTrendResponseSchema = z.object({
   player: playerSchema,
   stats: z.object({
     presenze: z.number(),
+    assenze: z.number(),
+    streak_presenze: z.number(),
+    streak_assenze: z.number(),
     gol_totali: z.number(),
+    media_gol: z.number().nullable(),
     assist_totali: z.number(),
+    media_assist: z.number().nullable(),
+    autogol: z.number(),
+    streak_gol: z.number(),
+    streak_assist: z.number(),
+    vittorie: z.number(),
+    sconfitte: z.number(),
+    pareggi: z.number(),
+    ratio_vittorie: z.number().nullable(),
+    streak_vittorie: z.number(),
+    streak_sconfitte: z.number(),
     media_voto: z.number().nullable(),
+    media_on_fire: z.number().nullable(),
+    base_rating: z.number().nullable(),
+    expected_rating: z.number().nullable(),
+    delta_rating: z.number().nullable(),
     plus_minus: z.number(),
   }),
   streak: z.array(z.string()),
   trend: z.array(playerTrendRowSchema),
+  top_compagni: z.array(topPlayerSchema),
+  top_avversari: z.array(topPlayerSchema),
 })
 
 export const oneVsOneResponseSchema = z.object({
@@ -93,3 +121,4 @@ export type PlayerTrendResponse = z.infer<typeof playerTrendResponseSchema>
 export type OneVsOneResponse = z.infer<typeof oneVsOneResponseSchema>
 export type ImportResult = z.infer<typeof importResultSchema>
 export type Player = z.infer<typeof playerSchema>
+export type TopPlayer = z.infer<typeof topPlayerSchema>

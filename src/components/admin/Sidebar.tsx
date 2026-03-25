@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../lib/useAuth'
 
 const sections = [
+  { to: '/admin/home', label: 'Home' },
   { to: '/admin/partite', label: 'Partite' },
   { to: '/admin/giocatori', label: 'Giocatori' },
   { to: '/admin/news', label: 'News' },

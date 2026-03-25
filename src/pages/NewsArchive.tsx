@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { getNews, type NewsItem } from '../api/news'
 import { Skeleton } from '../components/Skeleton'
+import { NewsCard } from '../components/NewsCard'
 
 export function NewsArchive() {
   const [news, setNews] = useState<NewsItem[]>([])
@@ -59,46 +60,7 @@ export function NewsArchive() {
                 return next
               })
               return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  onClick={toggle}
-                  style={{
-                    background: 'var(--surface)',
-                    borderRadius: 'var(--radius)',
-                    padding: '1rem',
-                    marginBottom: '0.75rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem' }}>
-                    {item.titolo}
-                  </h3>
-                  <p style={{
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.85rem',
-                    lineHeight: 1.5,
-                    ...(isOpen ? {} : {
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical' as const,
-                      overflow: 'hidden',
-                    }),
-                  }}>
-                    {item.corpo}
-                  </p>
-                  <span style={{
-                    color: 'var(--accent)',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    marginTop: '0.4rem',
-                    display: 'inline-block',
-                  }}>
-                    {isOpen ? 'Chiudi' : 'Leggi tutto'}
-                  </span>
-                </motion.div>
+                <NewsCard key={item.id} item={item} idx={idx} isOpen={isOpen} onToggle={toggle} />
               )
             })}
           </div>
