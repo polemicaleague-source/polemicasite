@@ -7,6 +7,7 @@ import { Stats } from './pages/Stats'
 import { OneVsOne } from './pages/OneVsOne'
 import { Profilo } from './pages/Profilo'
 import { Partite } from './pages/Partite'
+import { NewsArchive } from './pages/NewsArchive'
 import { ManifestoPage } from './pages/Manifesto'
 import { AdminLogin } from './pages/admin/Login'
 import { AdminLayout } from './pages/admin/Layout'
@@ -25,6 +26,7 @@ function App() {
           {/* Public */}
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/news" element={<NewsArchive />} />
             <Route path="/partite" element={<Partite />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/1vs1" element={<OneVsOne />} />

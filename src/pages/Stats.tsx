@@ -31,7 +31,7 @@ export function Stats() {
     getClassifiche(tab)
       .then((res) => setRows(res.data))
       .catch(() => setRows([]))
-      .finally(() => setLoading(false))
+      .then(() => setLoading(false))
   }, [tab])
 
   return (
