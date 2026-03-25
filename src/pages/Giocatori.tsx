@@ -52,6 +52,43 @@ export function Giocatori() {
     <div style={{ padding: '1rem' }}>
       <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Giocatori</h1>
 
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+        <Link
+          to="/stats"
+          style={{
+            flex: 1,
+            padding: '0.6rem',
+            borderRadius: '8px',
+            background: 'var(--accent)',
+            color: '#000',
+            fontWeight: 600,
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+            textDecoration: 'none',
+          }}
+        >
+          Classifiche
+        </Link>
+        <Link
+          to="/1vs1"
+          style={{
+            flex: 1,
+            padding: '0.6rem',
+            borderRadius: '8px',
+            background: 'var(--surface)',
+            color: 'var(--text-secondary)',
+            fontWeight: 600,
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+            textDecoration: 'none',
+          }}
+        >
+          1 vs 1
+        </Link>
+      </div>
+
       <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
         <svg width="18" height="18" fill="none" stroke="var(--text-secondary)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)' }}>
           <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
