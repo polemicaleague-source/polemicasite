@@ -6,7 +6,7 @@ export async function getPlayerTrend(id: string): Promise<PlayerTrendResponse> {
   const [playerResult, matchResult, maxGiornataResult] = await Promise.all([
     supabase
       .from('players')
-      .select('id, nome, soprannome, avatar_url, er, tratto, tenore_fisico, base_rating, last_er, delta_rating, player_roles(ruolo, ordine)')
+      .select('id, nome, soprannome, avatar_url, er, tratto, tenore_fisico, base_rating, expected_rating, last_er, delta_rating, player_roles(ruolo, ordine)')
       .eq('id', id)
       .single(),
     supabase
@@ -185,11 +185,9 @@ export async function getPlayerTrend(id: string): Promise<PlayerTrendResponse> {
     sconfitte: stats.sconfitte,
   }))
 
-  // Ratings
+  // Ratings (expected_rating is persisted in DB, recalculated via recalc_expected_rating RPC)
   const base_rating = player.base_rating ?? null
-  const expected_rating = base_rating !== null && media_voto !== null
-    ? Math.round(((base_rating + media_voto) / 2) * 100) / 100
-    : null
+  const expected_rating = player.expected_rating ?? null
   const delta_rating = base_rating !== null && expected_rating !== null
     ? Math.round((base_rating - expected_rating) * 100) / 100
     : null

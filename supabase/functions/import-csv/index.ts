@@ -219,6 +219,9 @@ async function importDettaglio(
       result.errors.push({ row: 0, reason: `DB insert: ${error.message}` });
     } else {
       result.inserted = toInsert.length;
+      // Recalculate expected_rating for affected players
+      const playerIds = [...new Set(toInsert.map((r) => r.player_id as string))];
+      await supabase.rpc("recalc_expected_rating", { p_ids: playerIds });
     }
   }
   return result;
@@ -348,6 +351,12 @@ async function importRating(
       result.skipped++;
     }
   }
+
+  // Recalculate expected_rating for all players (base_rating may have changed)
+  if (result.inserted > 0) {
+    await supabase.rpc("recalc_expected_rating", { p_ids: [] });
+  }
+
   return result;
 }
 

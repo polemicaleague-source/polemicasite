@@ -120,6 +120,9 @@ export function AdminPartite() {
     if (error) {
       toast.error(`Errore: ${error.message}`)
     } else {
+      // Recalculate expected_rating for affected players
+      const playerIds = toInsert.map((r) => r.player_id)
+      await supabase.rpc('recalc_expected_rating', { p_ids: playerIds })
       toast.success(editing !== null ? `Giornata ${giornata} aggiornata` : `Partita giornata ${giornata} salvata`)
       cancelEdit()
       loadData()
@@ -171,9 +174,15 @@ export function AdminPartite() {
 
   const handleDelete = async (g: number) => {
     if (!confirm(`Sei sicuro di voler eliminare la giornata ${g}? Tutti i dati verranno persi.`)) return
+    // Get affected player IDs before deleting
+    const { data: affected } = await supabase.from('match_details').select('player_id').eq('giornata', g)
+    const playerIds = [...new Set((affected ?? []).map((r: any) => r.player_id))]
     const { error } = await supabase.from('match_details').delete().eq('giornata', g)
     if (error) toast.error(error.message)
-    else { toast.success(`Giornata ${g} eliminata`); if (editing === g) cancelEdit(); loadData() }
+    else {
+      if (playerIds.length > 0) await supabase.rpc('recalc_expected_rating', { p_ids: playerIds })
+      toast.success(`Giornata ${g} eliminata`); if (editing === g) cancelEdit(); loadData()
+    }
   }
 
   const fieldStyle: React.CSSProperties = { padding: '0.4rem', fontSize: '0.8rem', width: '100%' }
